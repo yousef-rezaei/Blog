@@ -40,9 +40,4 @@ def blog_single(request,pid):
     return render(request, 'blog/blog-single.html',context)
 
 def test(request):
-
-    posts = Post.objects.exclude(puplished_date__gt=datetime.datetime.now())
-    #posts = Post.objects.all()
-    #time = Post.objects.dates('puplished_date','M D',order='DESC')
-    context = {'posts': posts , 'time': time}
-    return render(request, 'test.html',context)
+    return render(request, 'test.html')
