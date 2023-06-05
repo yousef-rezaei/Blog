@@ -1,4 +1,4 @@
-{% load blog_tags %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,8 +8,10 @@
     <title>Document</title>
 </head>
 <body>
-   <h1>Testing Page</h1>
-   <p>test: </p>
-   {% popularposts %}
+  <form action="{% url 'website:test' %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit</button>
+  </form>
 </body>
 </html>
