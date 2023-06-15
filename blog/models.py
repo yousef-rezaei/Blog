@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.urls import reverse 
 
 # Create your models here.
 
@@ -28,6 +29,12 @@ class Post(models.Model):
         ordering = ['-created_date']
 
     def __str__(self):
-        return " {} - {} ".format(self.title,self.id)
+        return self.title
+
+    def snippets(self):
+        return self.content[:100] + '...'
+
+    def get_absolute_url(self):
+        return reverse('blog:single',kwargs={'pid': self.id})
 
 
