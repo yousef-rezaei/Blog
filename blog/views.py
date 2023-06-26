@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from blog.models import Post
+from blog.models import Post,Comment
 import datetime
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
@@ -31,7 +31,7 @@ def blog_view(request, **kwargs):
 def blog_single(request,pid):
     posts = Post.objects.filter(status=1)
     post = get_object_or_404(Post, pk= pid)
-
+    comments = Comment.objects.filter(post=post.id, approved=True)
     #Start Update Counted_views
     post.counted_views = post.counted_views +1
     post.save()
@@ -56,7 +56,7 @@ def blog_single(request,pid):
             next_post = posts[i+1]
      #End looking for NextPost and PrevPost
 
-    context ={'post': post, 'pre_post':pre_post , 'next_post':next_post}
+    context ={'post': post,'comments': comments , 'pre_post':pre_post , 'next_post':next_post}
     return render(request, 'blog/blog-single.html',context)
 
 def test(request):
