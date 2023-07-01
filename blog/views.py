@@ -1,11 +1,12 @@
 from django.shortcuts import render, get_object_or_404
 from blog.models import Post,Comment
-import datetime
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from blog.forms import CommentForm
+from django.contrib import messages
 
 # Create your views here.
 def blog_view(request, **kwargs):
-    posts = Post.objects.filter(status=1)
+    posts = Post.objects.filter(status=1).order_by('-puplished_date')
     if kwargs.get('cat_name') != None:
         posts= posts.filter(category__name=kwargs['cat_name'])
 
@@ -15,7 +16,7 @@ def blog_view(request, **kwargs):
     if kwargs.get('tag_name') != None:
         posts= posts.filter(tags__name__in=[kwargs['tag_name']])
 
-    posts = Paginator(posts, 2)
+    posts = Paginator(posts, 3)
 
     try:
         page_number = request.GET.get('page')
@@ -29,34 +30,24 @@ def blog_view(request, **kwargs):
     return render(request, 'blog/blog-home.html', context)
 
 def blog_single(request,pid):
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.add_message(request, messages.SUCCESS, 'Your comment submited successfully.')
+        else:
+            messages.add_message(request, messages.ERROR, 'Your comment didnt submited.')
+    
     posts = Post.objects.filter(status=1)
     post = get_object_or_404(Post, pk= pid)
     comments = Comment.objects.filter(post=post.id, approved=True)
+    form = CommentForm()
     #Start Update Counted_views
     post.counted_views = post.counted_views +1
     post.save()
     #End Update Counted_views
 
-    #Start looking for NextPost and PrevPost
-    i = -1
-    if post != None  :
-        for n in posts:
-            i = i+1
-            if n.id == post.id:
-                break
-    
-        if i==0:
-            pre_post = posts[len(posts)-1]  
-        else:
-            pre_post= posts[i-1]
-
-        if i== (len(posts)-1):
-            next_post = posts[0]  
-        else:
-            next_post = posts[i+1]
-     #End looking for NextPost and PrevPost
-
-    context ={'post': post,'comments': comments , 'pre_post':pre_post , 'next_post':next_post}
+    context ={'post': post,'comments': comments , 'form': form}
     return render(request, 'blog/blog-single.html',context)
 
 def test(request):
